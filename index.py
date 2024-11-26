@@ -1,6 +1,3 @@
-import xml.etree.ElementTree as ET
-import pandas as pd
-
 def extrair_dados_nfe(xml_path):
     # Carregar o XML
     tree = ET.parse(xml_path)
@@ -12,7 +9,7 @@ def extrair_dados_nfe(xml_path):
     # Inicializar a lista para armazenar os dados
     produtos = []
     
-    CODFORNEC = input('Digite o codigo do fornecedor: ')
+    CODFORNEC = input('Digite o código do fornecedor: ')
     
     # Percorrer os itens da NFe
     for item in root.findall(".//nfe:det", ns):
@@ -20,31 +17,31 @@ def extrair_dados_nfe(xml_path):
         
         # Nome do produto
         nome = item.find(".//nfe:xProd", ns)
-        produto['nome'] = nome.text if nome is not None else "Não informado"
+        produto['nome'] = nome.text.upper() if nome is not None else "NÃO INFORMADO"
         
         # Código do produto
         codigo = item.find(".//nfe:cProd", ns)
-        produto['codigo'] = codigo.text if codigo is not None else "Não informado"
+        produto['codigo'] = codigo.text if codigo is not None else "NÃO INFORMADO"
         
         # Código de barras (EAN)
         cod_barras = item.find(".//nfe:cEAN", ns)
-        produto['codigo_barras'] = cod_barras.text if cod_barras is not None else "Não informado"
+        produto['codigo_barras'] = cod_barras.text if cod_barras is not None else "NÃO INFORMADO"
         
         # Código de barras tributável (EANTrib)
         ean_trib = item.find(".//nfe:cEANTrib", ns)
-        produto['codigo_barras_tributavel'] = ean_trib.text if ean_trib is not None else "Não informado"
+        produto['codigo_barras_tributavel'] = ean_trib.text if ean_trib is not None else "NÃO INFORMADO"
         
         # Unidade de comercialização (uCom)
         u_com = item.find(".//nfe:uCom", ns)
-        produto['unidade_comercializacao'] = u_com.text if u_com is not None else "Não informado"
+        produto['unidade_comercializacao'] = u_com.text if u_com is not None else "NÃO INFORMADO"
         
         # Unidade de tributação (uTrib)
         u_trib = item.find(".//nfe:uTrib", ns)
-        produto['unidade_tributacao'] = u_trib.text if u_trib is not None else "Não informado"
+        produto['unidade_tributacao'] = u_trib.text if u_trib is not None else "NÃO INFORMADO"
         
         # NCM do produto
         ncm = item.find(".//nfe:NCM", ns)
-        produto['ncm'] = ncm.text if ncm is not None else "Não informado"
+        produto['ncm'] = ncm.text if ncm is not None else "NÃO INFORMADO"
         
         # Gerar SQL dinâmico para o produto
         sql = (
@@ -65,19 +62,3 @@ def extrair_dados_nfe(xml_path):
         produtos.append(produto)
     
     return produtos
-
-def salvar_em_excel(dados, nome_arquivo):
-    # Criar um DataFrame a partir dos dados
-    df = pd.DataFrame(dados)
-    
-    # Salvar em Excel
-    df.to_excel(nome_arquivo, index=False, engine='openpyxl')
-    print(f"Arquivo salvo com sucesso: {nome_arquivo}")
-
-# Exemplo de uso
-arquivo_xml = 'nota.xml'
-nome_arquivo_excel = 'produtos_nfe_com_sql.xlsx'
-
-# Extrair dados e salvar no Excel
-dados_produtos = extrair_dados_nfe(arquivo_xml)
-salvar_em_excel(dados_produtos, nome_arquivo_excel)
