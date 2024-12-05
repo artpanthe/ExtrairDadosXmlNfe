@@ -1,3 +1,6 @@
+import xml.etree.ElementTree as ET
+import pandas as pd
+
 def extrair_dados_nfe(xml_path):
     # Carregar o XML
     tree = ET.parse(xml_path)
@@ -53,6 +56,8 @@ def extrair_dados_nfe(xml_path):
             f"UNIDADE = '{produto['unidade_tributacao'][:2]}', "
             f"EMBALAGEM = '{produto['unidade_tributacao'][:2]}', "
             f"CODNCMEX = '{produto['ncm']}.', "
+            f"CODPRODMASTER = pcprodut.CODPROD, "
+            f"CODPRODPRINC = pcprodut.CODPROD, "
             f"ENVIAECOMMERCE = 'S' "        
             f"WHERE CODFAB = '{produto['codigo']}' AND CODFORNEC = {CODFORNEC};"
         )
@@ -62,3 +67,20 @@ def extrair_dados_nfe(xml_path):
         produtos.append(produto)
     
     return produtos
+
+
+def salvar_em_excel(dados, nome_arquivo):
+    # Criar um DataFrame a partir dos dados
+    df = pd.DataFrame(dados)
+    
+    # Salvar em Excel
+    df.to_excel(nome_arquivo, index=False, engine='openpyxl')
+    print(f"Arquivo salvo com sucesso: {nome_arquivo}")
+
+# Exemplo de uso
+arquivo_xml = 'nota.xml'
+nome_arquivo_excel = 'produtos_nfe_com_sql.xlsx'
+
+# Extrair dados e salvar no Excel
+dados_produtos = extrair_dados_nfe(arquivo_xml)
+salvar_em_excel(dados_produtos, nome_arquivo_excel)
